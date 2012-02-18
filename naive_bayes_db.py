@@ -21,7 +21,8 @@ class NaiveBayesDB(object):
                                     container_count integer)''')
                 curser.execute('insert into description values (?, 0)', (description,))
                 self.db.commit()
-                                    
+                                
+        self.description = curser.execute('select
 
         else:
             self.db = sl3.connect(database_path)
