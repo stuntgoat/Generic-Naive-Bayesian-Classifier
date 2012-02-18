@@ -1,0 +1,47 @@
+A naive Bayesian classifier
+
+Pre Alpha:
+    - outline of the functionality and implementation
+
+Bayes Therom
+P(A|B) = (P(B|A)*P(A))/P(B)
+
+The probability of A given B is equal to the probability of B given A multiplied by the probability of A, divided over the probability of B.
+----
+----
+A naive bayesian classifier formula
+
+P(S|W) = P(W|S) / ( P(W|S) + P(W|H) )
+
+The probability of a word being spammy, S, given a word, W, is equal to the probability of the frequency of word occurance in all spam messages in the training data, P(W|S)[if there were 300 messages marked spam and 25 occurances of the word 'purchase', the probability would be 25/300=.083], divided by the sum of P(W|S) and the frequency of word occurances in all ham messages in the training data, P(W|H).
+
+Implementation of the naive bayesian classifier formula:
+0) train the algorithm with containers that meet 1 of 2 possible outcomes.
+1) tokenize objects within a container(ie tokenize words within the body of an email)
+2) categorize the container and place all tokenized objects in one of two databases (ie. spam or not_spam) adding 
+   a count of 1 to counter.
+   If a token exists in the database, increment the counter by 1, otherwise, add it to the database and set counter
+   to 1.
+   Database schema: 
+       database name: spam or not_spam
+       table name: meta
+           container_counter: holds the sum of all containers referred to by this database
+       table name: token
+           string_column: holds a string of the token object; a unique name associated with the token
+           counter: holds the number of times a 
+3) to test a container for probability that is either one of 2 possible outcomes apply the 
+   formula for the naive bayesian classifier, listed above, for each token in the container. Next, 
+   combine the individual probabilities using the formula for combining individual probabilities, listed
+   below.
+
+----
+----
+Combining individual probabilities
+
+p(S) = (p1 * p2 ... pn) / ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )
+
+The formula for summing the probability of a message being labeled as spam, p(S), is equal to the product of each word's probability of being spammy, p1 through pn, divided by the sum of products p1 through pn and the products (1 - p1) through (1 - pn).
+
+
+
+
