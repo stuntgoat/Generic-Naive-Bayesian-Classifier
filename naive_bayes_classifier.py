@@ -2,13 +2,14 @@
         
 class NaiveBayesClassifier(object):
     """High level naive Bayes classifier. """
-    def __init__(self, positive_db=positive_db, negative_db=negative_db):
+    def __init__(self, database):
         """Accepts 2 databases for which a token would be 
         tested positive and negative."""
-        self.positive_db = positive_db
-        self.negative_db = negative_db
+        self.database = database
         self.tokens = None
-    
+        # decrements the global counter on untrain*()
+        self.decrement_global = True
+        
     def test_token(self, tokens):
         """Accepts: a list of tokens to compare to each database.
         Returns: a list of updated tokens that have the values
@@ -16,6 +17,8 @@ class NaiveBayesClassifier(object):
         # run query of each token in the database
         
         # setting the value of the respective Token value
+        pass
+
     ##############################
     # database operations call NaiveBayesDB functions to abstract db interactions
     # from this class
@@ -24,7 +27,7 @@ class NaiveBayesClassifier(object):
         and/or increment positive_counter in database"""
         pass
 
-    def untrain_positive(self):
+    def untrain_positive(self, decrement_global):
         """For each token in tokens, decrement token counter in positive_classification.
         If token counter == 0, remove token from table"""
         if not self.tokens:
@@ -38,7 +41,7 @@ class NaiveBayesClassifier(object):
             return self.tokens
         pass
 
-    def untrain_negative(self):
+    def untrain_negative(self, decrement_global):
         """For each token in tokens, decrement token counter in negative_classification.
         If token counter == 0, remove token from table"""
         pass

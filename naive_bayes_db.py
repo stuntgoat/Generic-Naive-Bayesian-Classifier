@@ -7,7 +7,6 @@ class NaiveBayesDB(object):
     TODO: 
     - try/execpt database creation or read/write error; test using os.stat
     - if file exists, test for permissions to read/write, also check size
-
     """
     def __init__(self, database_path, 
                  global_description=None,
@@ -32,7 +31,7 @@ class NaiveBayesDB(object):
         token exists in the database, increment the counter by 1."""
         pass
 
-    def untrain_positive(self, decrement_global_counter=False):
+    def untrain_positive(self, decrement_global_counter=True):
         """for each token, if token in database increment the token's counter by 1.
         if token does not exist in the database, pass. If decrement_global_counter
         is True, decrement the global counter"""
@@ -43,7 +42,7 @@ class NaiveBayesDB(object):
         Increment the global counter"""
         pass
     
-    def untrain_negative(self, decrement_global_counter=False):
+    def untrain_negative(self, decrement_global_counter=True):
         """for each token, if token in database increment the token's counter by 1.
         if token does not exist in the database, pass. If decrement_global_counter
         is True, decrement the global counter"""
