@@ -42,6 +42,38 @@ p(S) = (p1 * p2 ... pn) / ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 
 
 The formula for summing the probability of a message being labeled as spam, p(S), is equal to the product of each word's probability of being spammy, p1 through pn, divided by the sum of products p1 through pn and the products (1 - p1) through (1 - pn).
 
+----
+----
+   Sqlite3 SCHEMA as created by NaiveBayesDB
+     table: counters
+       column : counter INTEGER (the total number of containers parsed)
+           value0: <the value of the counter; defaults to 0>
+           value1: <the value of the counter; defaults to 0>
+           value2: <the value of the counter; defaults to 0>
 
+       column : name TEXT (used to index each row's counter value)
+    ie. "select counter from counters where name='positive_counter'"
+    (subclass NaiveBayesDB to change these naming constants)
+           value0: "global_counter"
+           value1: "positive_counter"
+           value2: "negative_counter"
 
+       column : description TEXT
+           value0: <description of this table as input by NaiveBayesDB; defaults to ''>
+           value1: <description of this table as input by NaiveBayesDB; defaults to ''>
+           value2: <description of this table as input by NaiveBayesDB; defaults to ''>
+
+     table: negative_classification
+       column : tokens TEXT
+           example_value0: "Viagra"
+           example_value1: "Ciali$"
+       column : count INTEGER
+           example_value0: 3
+           example_value1: 2
+
+     table: positive_classification
+       column : tokens TEXT
+       column : count INTEGER
+----
+----
 
