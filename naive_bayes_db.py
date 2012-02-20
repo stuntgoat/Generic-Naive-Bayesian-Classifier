@@ -29,14 +29,15 @@ class NaiveBayesDB(object):
     def update_counter(self, counter='', value=0):
         """Increment each counter according to train methods."""
         possible_counters = ['global_counter', 'positive_counter', 'negative_counter']
-        if (not counter) or (counter not in positive_counters):
+        if (not counter) or (counter not in possible_counters):
             return False
         cursor = self.db_connection.cursor()
-        current = cursor.execute("SELECT counter from counters WHERE name=?", (counter))
-        if current <= 0:
+        current = cursor.execute("SELECT counter from counters WHERE name=?", (counter,))
+        if current == 0:
             return False
-        current += value
-        cursor.execute("UPDATE counters SET counter=? WHERE name=?", (current, counter))
+        current_value = current.fetchone()[0]
+        current_value += value
+        cursor.execute("UPDATE counters SET counter=? WHERE name=?", (current_value, counter))
         return True
 
     # TODO: execute many
@@ -54,12 +55,14 @@ class NaiveBayesDB(object):
         except sl3.IntegrityError: # token exists in database, so increment token count
             if polarity == 'positive':
                 current = cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
-                current += 1
-                cursor.execute("UPDATE positive_classification SET count=? WHERE token=?", (current, token))
+                value = current.fetchone()[0]
+                value += 1
+                cursor.execute("UPDATE positive_classification SET count=? WHERE token=?", (value, token))
             elif polarity == 'negative':
                 current = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
-                current += 1
-                cursor.execute("UPDATE negative_classification SET count=? WHERE token=?", (current, token))
+                value = current.fetchone()[0]
+                value += 1
+                cursor.execute("UPDATE negative_classification SET count=? WHERE token=?", (value, token))
         finally:
             self.db_connection.commit()
             cursor.close()
@@ -68,29 +71,33 @@ class NaiveBayesDB(object):
     def _decrement_or_remove(self, token, polarity):
         """for each token, if token not in database, pass, else if token count >
         1, decrement, else if token count == 1, remove element from database"""
-        if not polarity:
+        if (not polarity) or (polarity not in ['positive', 'negative']):
             return False
         cursor = self.db_connection.cursor()
-
         try:
             if polarity == 'positive':
                 current_cursor = cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
                 # current_cursor 
                 current_value = current_cursor.fetchone()
-                
-                if not current_value: # not in database
+                if not current_value: # not in database; do nothing
                     return True
-                else:
-                    value = current_value[0]
-                if value == 1: # remove the token from the database
-                    
-                    
-                current -= 1
-                cursor.execute("UPDATE positive_classification SET count=? WHERE token=?", (current, token))
-            elif polarity == 'negative':
-                current = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
-                current += 1
-                cursor.execute("UPDATE negative_classification SET count=? WHERE token=?", (current, token))
+                value = current_value[0]
+                if value == 1: # remove the token from the database instead of setting to 0
+                    cursor.execute("DELETE FROM positive_classification WHERE token=?", (token,))
+                else: # decrement
+                    value -= 1
+                    cursor.execute("UPDATE positive_classification SET count=? WHERE token=?", (value, token))
+            else:
+                current_cursor = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
+                current_value = current_cursor.fetchone()
+                if not current_value: # not in database; do nothing
+                    return True
+                value = current_value[0]
+                if value == 1: # remove the token from the database instead of setting to 0
+                    cursor.execute("DELETE FROM negative_classification WHERE token=?", (token,))
+                else: # decrement
+                    value -= 1
+                    cursor.execute("UPDATE negative_classification SET count=? WHERE token=?", (value, token))
         finally:
             self.db_connection.commit()
             cursor.close()
@@ -101,8 +108,8 @@ class NaiveBayesDB(object):
         """batch update/insert tokens and increment global and positive counters"""
         for token in tokens:
             self._increment_or_insert(token, polarity='positive')
-        self.increment_counter('global_counter')
-        self.increment_counter('positive_counter')
+        self.update_counter('global_counter', value=1)
+        self.update_counter('positive_counter', value=1)
         return None
 
     def train_negative(self, tokens):
@@ -110,19 +117,28 @@ class NaiveBayesDB(object):
         Increment the global counter"""
         for token in tokens:
             self._increment_or_insert(token, polarity='negative')
-        self.increment_counter('global_counter')
-        self.increment_counter('negative_counter')
+        self.update_counter('global_counter', value=1)
+        self.update_counter('negative_counter', value=1)
         return None
     
     def untrain_positive(self, tokens):
-        """for each token, if token in database increment the token's counter by 1.
-        if token does not exist in the database, pass. If decrement_global_counter
-        is True, decrement the global counter"""
-    
+        """for each token, if token in database, decrement the token's counter by 1.
+        if token does not exist in the database, pass; if token count == 1, 
+        remove from database"""
+        for token in tokens:
+            self._decrement_or_remove(token, polarity='positive')
+        self.update_counter('global_counter', value=-1)
+        self.update_counter('positive_counter', value=-1)
+        return None                
+
     def untrain_negative(self, decrement_global_counter=True):
-        """for each token, if token in database increment the token's counter by 1.
-        if token does not exist in the database, pass. If decrement_global_counter
-        is True, decrement the global counter"""
-        pass
+        """for each token, if token in database, decrement the token's counter by 1.
+        if token does not exist in the database, pass; if token count == 1, 
+        remove from database"""
+        for token in tokens:
+            self._decrement_or_remove(token, polarity='negative')
+        self.update_counter('global_counter', value=-1)
+        self.update_counter('negative_counter', value=-1)
+        return None
     
     
