@@ -8,7 +8,8 @@ class NaiveBayesDB(object):
     - try/execpt database creation or read/write error; test using os.stat
     - if file exists, test for permissions to read/write, also check size
     """
-    def __init__(self, database_path, 
+    def __init__(self,
+                 database_path,
                  global_description='',
                  positive_description='',
                  negative_description=''):
@@ -131,7 +132,7 @@ class NaiveBayesDB(object):
         self.update_counter('positive_counter', value=-1)
         return None                
 
-    def untrain_negative(self, decrement_global_counter=True):
+    def untrain_negative(self, tokens):
         """for each token, if token in database, decrement the token's counter by 1.
         if token does not exist in the database, pass; if token count == 1, 
         remove from database"""
@@ -140,5 +141,74 @@ class NaiveBayesDB(object):
         self.update_counter('global_counter', value=-1)
         self.update_counter('negative_counter', value=-1)
         return None
-    
-    
+
+    def counter_for_token(self, token, polarity=''):
+        if (not polarity) or (polarity not in ['positive', 'negative']):
+            return False
+        cursor = self.db_connection.cursor()
+        try:
+            if polarity == 'positive':
+                current = cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
+                current_value = current_cursor.fetchone()
+                if not current_value: # not in database
+                    current_value = .5 # using this value as a default; TODO: find optimal value
+                else:
+                    current_value = current_value[0]
+                return current_value
+            else:
+                current = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
+                current_value = current_cursor.fetchone()
+                if not current_value: # not in database; use .5
+                    # don't divide by zero
+                    current_value = 1 # using this value as a default; TODO: find optimal value
+                else:
+                    current_value = current_value[0]
+                return current_value
+        finally:
+            cursor.close()
+        return True
+
+    def total_for_polarity(self, polarity=''):
+        if (not polarity) or (polarity not in ['positive', 'negative']):
+            return False
+        cursor = self.db_connection.cursor()
+        current_counter = cursor.execute("SELECT counter from counters WHERE name=?", (polarity,))
+        counter_value = current_counter.fetchone()[0]
+        if counter_value == 0:
+            counter_value = 1
+        return counter_value
+        
+        
+    # def test_token(self, token):
+    #     """Accepts: a Token object; Returns: the token with
+    #     the probability of it occuring in each of the positive and negative
+    #     databases"""
+    #     if not polarity:
+    #         return False
+    #     current = self.db_connection.cursor()
+    #     if polarity == 'positive':
+    #         current = cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
+    #         current_counter = cursor.execute("SELECT counter from counters WHERE name=?", ('positive_counter',))
+    #         counter_value = current_counter.fetchone()[0]
+    #         current_value = current_cursor.fetchone()
+    #         if not current_value: # not in database; use 1 as value
+    #             current_value = 1 # using this value as a default; TODO: discover other methods
+    #         else:
+    #             current_value = current_value[0]
+    #         positive_association = current_value/counter_value
+    #         negative_association = 
+    #         token.positive_value = 
+
+    #     if polarity == 'negative':
+    #         current = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
+    #         current_counter = cursor.execute("SELECT counter from counters WHERE name=?", ('negative_counter',))
+    #         counter_value = current_counter.fetchone()[0]
+    #         current_value = current_cursor.fetchone()
+    #         if not current_value: # not in database; use 1 as value
+    #             current_value = 1 # using this value as a default; TODO: discover other methods
+    #         else:
+    #             current_value = current_value[0]
+            
+    #         token.negative_value = current_value/counter_value
+
+        
