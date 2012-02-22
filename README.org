@@ -1,4 +1,4 @@
-A naive Bayesian classifier
+#+TITLE: A naive Bayesian classifier
 Pre Alpha
 ----
 ----
@@ -19,9 +19,9 @@ Implementation of the naive bayesian classifier formula:
 Background:
 Bayes Therom
 P(A|B) = (P(B|A)*P(A))/P(B)
-
+#+BEGIN_VERSE
 The probability of A given B is equal to the probability of B given A multiplied by the probability of A, divided over the probability of B.
-
+#+END_VERSE
 A naive bayesian classifier formula
 
 P(S|W) = P(W|S) / ( P(W|S) + P(W|H) )
@@ -66,14 +66,13 @@ The formula for summing the probability of a message being labeled as spam, p(S)
      table: positive_classification
        column : tokens TEXT
        column : count INTEGER"
-----
+
 Python used to create Sqlite3 database:
-=cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")
-cursor.execute("insert into counters VALUES (0, 'global_counter', ?)", (global_description,))
-cursor.execute("insert into counters VALUES (0, 'positive_counter', ?)", (positive_description,))
-cursor.execute("insert into counters VALUES (0, 'negative_counter', ?)", (negative_description,))
-cursor.execute("create table negative_classification (token TEXT UNIQUE, count INTEGER)")
-cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")=
-----
-----
+=cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")=
+=cursor.execute("insert into counters VALUES (0, 'global_counter', ?)", (global_description,))=
+=cursor.execute("insert into counters VALUES (0, 'positive_counter', ?)", (positive_description,))=
+=cursor.execute("insert into counters VALUES (0, 'negative_counter', ?)", (negative_description,))=
+=cursor.execute("create table negative_classification (token TEXT UNIQUE, count INTEGER)")=
+=cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")==
+
 
