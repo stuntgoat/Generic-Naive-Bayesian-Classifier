@@ -1,7 +1,4 @@
-#+TITLE: *A naive Bayesian classifier*
-Pre Alpha
-----
-----
+#+TITLE: A naive Bayesian classifier
 Implementation of the naive bayesian classifier formula:
 * train the algorithm with containers that are categorized positive or negative compared to a criteria.
 ** tokenize objects within a container(ie. tokenize words within the body of an email)
@@ -9,7 +6,7 @@ Implementation of the naive bayesian classifier formula:
    words and characters from the body of an email))
       
    
-**     move the categorized tokens to the respective database table
+** move the categorized tokens to the respective database table
 * compare new documents with 'trained' database;
 ** using the formulas listed below, calculate each token's probability with each the database table to
    acquire the likelihood of testing positive and negative.
