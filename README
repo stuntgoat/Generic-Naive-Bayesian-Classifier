@@ -1,21 +1,32 @@
-A naive Bayesian classifier
-Pre Alpha
-----
-----
-Implementation of the naive bayesian classifier formula:
-0) train the algorithm with containers that are categorized positive or negative compared to a criteria.
-  0.1) tokenize objects within a container(ie. tokenize words within the body of an email)
-       (to tokenize means to acquire attributes in smallest meaningful units (ie. strip unwanted 
-       words and characters from the body of an email))
-  0.2) move the categorized tokens to the respective database table
-1) compare new documents with 'trained' database; 
-  1.1) using the formulas listed below, calculate each token's probability with each the database table to
-       acquire the likelihood of testing positive and negative.
-  1.2) upon, binary categorization, move tokenized objects to either of two database tables (ie. spam or not_spam) adding a count of 1 to counter if they already exist. 
-  1.3) calculating formulas and training the database can be done independently; that is, neither
-       is dependent on the other happening before a method is called.
-----
-----
+A Python implementation of a Naive Bayesian Classifier.
+
+Written as generic as possible. The database currently uses Sqlite3 but the NaiveBayesDB can subclassed to use another database if so desired.
+
+Example training usage for spam filtering:
+
+from naive_bayes_classifier import NaiveBayesClassifier
+from example_tokenizer import SpamTokenizer
+
+# sqlite3 database file
+SPAM_CLASSIFIER_DB = '/path/to/spam_classifier.db'
+# to train positive:
+spam = SpamTokenizer(raw_data) # process tokens from raw data
+spam.tokenize() # returns a list of tokens 
+
+# assuming an existing database; see class to add description
+# to the database.
+spam_bayes = NaiveBayesClassifier(SPAM_CLASSIFIER_DB)
+spam_bayes.register_tokens(spam.tokens)
+spam_bayes.train_positive()
+
+# train negative
+non_spam = SpamTokenizer(non_spam_raw_data)
+non_spam.tokenize()
+spam_bayes.register_tokens(non_spam.tokens)
+spam_bayes.train_negative()
+
+Example testing usage, for spam email testing:
+
 Background:
 Bayes Therom
 P(A|B) = (P(B|A)*P(A))/P(B)
@@ -34,46 +45,12 @@ p(S) = (p1 * p2 ... pn) / ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 
 
 The formula for summing the probability of a message being labeled as spam, p(S), is equal to the product of each word's probability of being spammy, p1 through pn, divided by the sum of products p1 through pn and the products (1 - p1) through (1 - pn).
 
-----
-----
-   Sqlite3 SCHEMA as created by NaiveBayesDB
-     table: counters
-       column : counter INTEGER (the total number of containers parsed)
-           value0: <the value of the counter; defaults to 0>
-           value1: <the value of the counter; defaults to 0>
-           value2: <the value of the counter; defaults to 0>
-
-       column : name TEXT (used to index each row's counter value)
-    ie. "select counter from counters where name='positive_counter'"
-    (subclass NaiveBayesDB to change these naming constants)
-           value0: "global_counter"
-           value1: "positive_counter"
-           value2: "negative_counter"
-
-       column : description TEXT
-           value0: <description of this table as input by NaiveBayesDB; defaults to ''>
-           value1: <description of this table as input by NaiveBayesDB; defaults to ''>
-           value2: <description of this table as input by NaiveBayesDB; defaults to ''>
-
-     table: negative_classification
-       column : tokens TEXT
-           example_value0: "Viagra"
-           example_value1: "Ciali$"
-       column : count INTEGER
-           example_value0: 3
-           example_value1: 2
-
-     table: positive_classification
-       column : tokens TEXT
-       column : count INTEGER"
-----
 Python used to create Sqlite3 database:
-=cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")
+cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")
 cursor.execute("insert into counters VALUES (0, 'global_counter', ?)", (global_description,))
 cursor.execute("insert into counters VALUES (0, 'positive_counter', ?)", (positive_description,))
 cursor.execute("insert into counters VALUES (0, 'negative_counter', ?)", (negative_description,))
 cursor.execute("create table negative_classification (token TEXT UNIQUE, count INTEGER)")
-cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")=
-----
-----
+cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")
+
 
