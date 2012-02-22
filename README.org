@@ -36,36 +36,6 @@ The formula for summing the probability of a message being labeled as spam, p(S)
 
 ----
 ----
-   Sqlite3 SCHEMA as created by NaiveBayesDB
-     table: counters
-       column : counter INTEGER (the total number of containers parsed)
-           value0: <the value of the counter; defaults to 0>
-           value1: <the value of the counter; defaults to 0>
-           value2: <the value of the counter; defaults to 0>
-
-       column : name TEXT (used to index each row's counter value)
-    ie. "select counter from counters where name='positive_counter'"
-    (subclass NaiveBayesDB to change these naming constants)
-           value0: "global_counter"
-           value1: "positive_counter"
-           value2: "negative_counter"
-
-       column : description TEXT
-           value0: <description of this table as input by NaiveBayesDB; defaults to ''>
-           value1: <description of this table as input by NaiveBayesDB; defaults to ''>
-           value2: <description of this table as input by NaiveBayesDB; defaults to ''>
-
-     table: negative_classification
-       column : tokens TEXT
-           example_value0: "Viagra"
-           example_value1: "Ciali$"
-       column : count INTEGER
-           example_value0: 3
-           example_value1: 2
-
-     table: positive_classification
-       column : tokens TEXT
-       column : count INTEGER"
 
 Python used to create Sqlite3 database:
 =cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")=
@@ -73,6 +43,6 @@ Python used to create Sqlite3 database:
 =cursor.execute("insert into counters VALUES (0, 'positive_counter', ?)", (positive_description,))=
 =cursor.execute("insert into counters VALUES (0, 'negative_counter', ?)", (negative_description,))=
 =cursor.execute("create table negative_classification (token TEXT UNIQUE, count INTEGER)")=
-=cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")==
+=cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")=
 
 
