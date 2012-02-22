@@ -1,4 +1,4 @@
-import spam_token as tkn 
+import generic_token as tkn 
 import re
 
 class SpamTokenizer(object):
