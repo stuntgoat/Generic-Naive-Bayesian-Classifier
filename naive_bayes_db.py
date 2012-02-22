@@ -4,9 +4,6 @@ from os.path import exists
 class NaiveBayesDB(object):
     """Creates and maintains a database that will 
     hold values for the NaiveBayesClassifier.
-    TODO: 
-    - try/execpt database creation or read/write error; test using os.stat
-    - if file exists, test for permissions to read/write, also check size
     """
     def __init__(self,
                  database_path,
@@ -18,7 +15,6 @@ class NaiveBayesDB(object):
             self.db_connection = sl3.connect(database_path)        
             self.db_connection.text_factory = str
             cursor = self.db_connection.cursor()
-            
             cursor.execute("create table counters (counter INTEGER, name TEXT, description TEXT)")
             cursor.execute("insert into counters VALUES (0, 'global_counter', ?)", (global_description,))
             cursor.execute("insert into counters VALUES (0, 'positive_counter', ?)", (positive_description,))
@@ -27,9 +23,11 @@ class NaiveBayesDB(object):
             cursor.execute("create table positive_classification (token BLOB UNIQUE, count INTEGER)")
             self.db_connection.commit()
             cursor.close()
+            return None
         self.db_connection = sl3.connect(database_path)
         self.db_connection.text_factory = str
         self.cursor = None
+        return None
 
     def update_counter(self, counter='', value=0):
         """Increment each counter according to train methods."""
@@ -44,13 +42,11 @@ class NaiveBayesDB(object):
         self.cursor.execute("UPDATE counters SET counter=? WHERE name=?", (current_value, counter))
         return True
  
-    # TODO: execute many
     def _increment_or_insert(self, token, polarity=None):
         """for each token, if token not in database, add token to the database and set count to 1; if the
         token exists in the database, increment the counter by 1."""
         if not polarity:
             return False
-
         try:
             if polarity == 'positive':
                 self.cursor.execute("insert into positive_classification VALUES (?, ?)", (token, 1))
@@ -104,7 +100,6 @@ class NaiveBayesDB(object):
             pass
         return None
 
-    # TODO: execute many
     def train_positive(self, tokens):
         """batch update/insert tokens and increment global and positive counters"""
         self.cursor = self.db_connection.cursor()
@@ -120,7 +115,6 @@ class NaiveBayesDB(object):
     def train_negative(self, tokens):
         """For each token in tokens, add token/counter and/or increment negative_counter in database.
         Increment the global counter"""
-
         self.cursor = self.db_connection.cursor()
         self.cursor.execute('BEGIN TRANSACTION')
         for token in tokens:
@@ -141,10 +135,8 @@ class NaiveBayesDB(object):
             self._decrement_or_remove(token.token_string, polarity='positive')
         self.update_counter('global_counter', value=-1)
         self.update_counter('positive_counter', value=-1)
-        # commit to connection
         self.db_connection.commit()
         self.cursor.close()
-
         return None                
 
     def untrain_negative(self, tokens):
@@ -159,8 +151,6 @@ class NaiveBayesDB(object):
         self.update_counter('negative_counter', value=-1)
         self.db_connection.commit()
         self.cursor.close()
-        # close cursor
-
         return None
 
     def counter_for_token(self, token, polarity=''):
@@ -172,31 +162,24 @@ class NaiveBayesDB(object):
                 cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
                 current_value = cursor.fetchone()
                 if not current_value: # not in database
-                    current_value = .5 # using this value as a default; TODO: find optimal value
-                else:
-                    current_value = current_value[0] # bad form
-                print current_value
-                return current_value
+                    return 1 # using this value as a default; TODO: find optimal value
+                return current_value[0]
             else:
-                current = cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
+                cursor.execute("SELECT count from negative_classification WHERE token=?", (token,))
                 current_value = cursor.fetchone()
-                if not current_value: # not in database; use .5
-                    # don't divide by zero
-                    current_value = 1 # using this value as a default; TODO: find optimal value
-                else:
-                    current_value = current_value[0] # bad form
-                print current_value
-                return current_value
+                if not current_value: # not in database; use 1
+                    return 1 # using this value as a default; TODO: find optimal value
+                return current_value[0]
         finally:
             cursor.close()
         return True
 
     def total_for_polarity(self, polarity=''):
+        """Returns the counter for the given polarity"""
         if (not polarity) or (polarity not in ['positive', 'negative']):
             return False
         cursor = self.db_connection.cursor()
         current_counter = cursor.execute("SELECT counter from counters WHERE name=?", ("%s_counter" % polarity,))
-        
         counter_value = current_counter.fetchone()[0]
         if counter_value == 0:
             counter_value = 1
