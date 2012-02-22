@@ -17,6 +17,10 @@ class NaiveBayesClassifier(object):
                                      negative_description=negative_description)
         self.tokens = None
 
+    def register_tokens(self, tokens):
+        self.tokens = tokens
+        return None
+    
     ##############################
     # database operations call NaiveBayesDB functions to abstract db interactions
     # from this class
@@ -55,6 +59,7 @@ class NaiveBayesClassifier(object):
                                                     polarity='negative')
             numerator = (positive_count/total_positive)
             denominator = ((positive_count/total_positive) + (negative_count/total_negative))
+            print("%f / %f" % (numerator, denominator))
             token.positive_value = numerator/denominator
             numerator = (negative_count/total_negative)
             denominator = ((negative_count/total_negative) + (positive_count/total_positive))
@@ -66,6 +71,7 @@ class NaiveBayesClassifier(object):
         ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )"""
         numerator = sum([token.positive_value for token in self.tokens])
         denominator = numerator + sum([1-token.positive_value for token in self.tokens])
+        print("%f / %f" % (numerator, denominator))
         return numerator/denominator
             
     def sum_negative(self):
@@ -73,6 +79,7 @@ class NaiveBayesClassifier(object):
         ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )"""
         numerator = sum([token.negative_value for token in self.tokens])
         denominator = numerator + sum([1-token.negative_value for token in self.tokens])
+        print("%f / %f" % (numerator, denominator))
         return numerator/denominator
 
         
