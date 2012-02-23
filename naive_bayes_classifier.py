@@ -48,7 +48,7 @@ class NaiveBayesClassifier(object):
 
     ##############################
     # bayes formula operations
-    def _get_ratios(self):
+    def calculate_probabilities(self):
         """Stores the Token.token_string values, as compared positive and negative
         in the database, within the Token.positive_value and Token.negative_value,
         respectively."""

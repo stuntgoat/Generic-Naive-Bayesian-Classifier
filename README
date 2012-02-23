@@ -26,6 +26,18 @@ spam_bayes.register_tokens(non_spam.tokens)
 spam_bayes.train_negative()
 
 Example testing usage, for spam email testing:
+test_email = open('/path/to/test.eml')
+test = SpamTokenizer(test_email)
+test.tokenize()
+
+spam_bayes.register_tokens(test.tokens)
+spam_bayes.caclulate_probabilities()
+
+# show results above token list
+print("%.6f positive %.6f negative \n %s \n" % (subject_bayes.sum_positive(),
+                                                subject_bayes.sum_negative(),
+                                                [x.token_string for x in subject_bayes.tokens]))
+# fin
 
 Background:
 Bayes Therom
@@ -39,7 +51,7 @@ P(S|W) = P(W|S) / ( P(W|S) + P(W|H) )
 
 The probability of a word being spammy, S, given a word, W, is equal to the probability of the frequency of word occurance in all spam messages in the training data, P(W|S)[if there were 300 messages marked spam and 25 occurances of the word 'purchase', the probability would be 25/300=.083], divided by the sum of P(W|S) and the frequency of word occurances in all ham messages in the training data, P(W|H).
 ----
- Combining individual probabilities
+Combining individual probabilities
 
 p(S) = (p1 * p2 ... pn) / ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )
 
