@@ -37,7 +37,6 @@ spam_bayes.caclulate_probabilities()
 print("%.6f positive %.6f negative \n %s \n" % (subject_bayes.sum_positive(),
                                                 subject_bayes.sum_negative(),
                                                 [x.token_string for x in subject_bayes.tokens]))
-# fin
 
 Background:
 Bayes Therom
