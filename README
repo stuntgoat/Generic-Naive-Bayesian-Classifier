@@ -25,7 +25,7 @@ non_spam.tokenize()
 spam_bayes.register_tokens(non_spam.tokens)
 spam_bayes.train_negative()
 
-Example testing usage, for spam email testing:
+# Example testing usage, for spam email testing:
 test_email = open('/path/to/test.eml')
 test = SpamTokenizer(test_email)
 test.tokenize()
