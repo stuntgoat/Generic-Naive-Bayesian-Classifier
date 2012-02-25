@@ -3,41 +3,41 @@ A Python implementation of a Naive Bayesian Classifier.
 Written as generic as possible. The database currently uses Sqlite3 but the NaiveBayesDB can subclassed to use another database if so desired.
 
 Example training usage for spam filtering:
-'''
-from naive_bayes_classifier import NaiveBayesClassifier
-from example_tokenizer import SpamTokenizer
 
-# sqlite3 database file
-SPAM_CLASSIFIER_DB = '/path/to/spam_classifier.db'
-# to train positive:
-spam = SpamTokenizer(raw_data) # process tokens from raw data
-spam.tokenize() # returns a list of tokens 
+    from naive_bayes_classifier import NaiveBayesClassifier
+    from example_tokenizer import SpamTokenizer
 
-# assuming an existing database; see class to add description
-# to the database.
-spam_bayes = NaiveBayesClassifier(SPAM_CLASSIFIER_DB)
-spam_bayes.register_tokens(spam.tokens)
-spam_bayes.train_positive()
+    # sqlite3 database file
+    SPAM_CLASSIFIER_DB = '/path/to/spam_classifier.db'
+    # to train positive:
+    spam = SpamTokenizer(raw_data) # process tokens from raw data
+    spam.tokenize() # returns a list of tokens 
 
-# train negative
-non_spam = SpamTokenizer(non_spam_raw_data)
-non_spam.tokenize()
-spam_bayes.register_tokens(non_spam.tokens)
-spam_bayes.train_negative()
+    # assuming an existing database; see class to add description
+    # to the database.
+    spam_bayes = NaiveBayesClassifier(SPAM_CLASSIFIER_DB)
+    spam_bayes.register_tokens(spam.tokens)
+    spam_bayes.train_positive()
 
-# Example testing usage, for spam email testing:
-test_email = open('/path/to/test.eml')
-test = SpamTokenizer(test_email)
-test.tokenize()
+    # train negative
+    non_spam = SpamTokenizer(non_spam_raw_data)
+    non_spam.tokenize()
+    spam_bayes.register_tokens(non_spam.tokens)
+    spam_bayes.train_negative()
 
-spam_bayes.register_tokens(test.tokens)
-spam_bayes.caclulate_probabilities()
+    # Example testing usage, for spam email testing:
+    test_email = open('/path/to/test.eml')
+    test = SpamTokenizer(test_email)
+    test.tokenize()
 
-# show results above token list
-print("%.6f positive %.6f negative \n %s \n" % (subject_bayes.sum_positive(),
-                                                    subject_bayes.sum_negative(),
-                                                    [x.token_string for x in subject_bayes.tokens]))
-'''
+    spam_bayes.register_tokens(test.tokens)
+    spam_bayes.caclulate_probabilities()
+
+    # show results above token list
+    print("%.6f positive %.6f negative \n %s \n" % (subject_bayes.sum_positive(),
+                                                        subject_bayes.sum_negative(),
+                                                        [x.token_string for x in subject_bayes.tokens]))
+
 Background:
 Bayes Therom
 P(A|B) = (P(B|A)*P(A))/P(B)
