@@ -66,3 +66,45 @@ Python used to create Sqlite3 database:
     cursor.execute("create table positive_classification (token TEXT UNIQUE, count INTEGER)")
 
 
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">generic_token</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">tkn</span> 
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">re</span>
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SpamTokenizer</span>(<span style="color: #008000">object</span>):
+    <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;parse email content, given as a list of strings- a list of lines in a file.&quot;&quot;&quot;</span>
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">__init__</span>(<span style="color: #008000">self</span>, items):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;Accepts: a list of email &#39;body&#39; lines.</span>
+<span style="color: #BA2121; font-style: italic">        Returns: a list of tokens&quot;&quot;&quot;</span>
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>items <span style="color: #666666">=</span> items
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>tokens <span style="color: #666666">=</span> []
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">parse_pre_tokens</span>(<span style="color: #008000">self</span>, symbol):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;remove &#39;=&#39;, &#39;&gt;&lt;&#39;, and any word that does not contain letters; or</span>
+<span style="color: #BA2121; font-style: italic">        if the word &#39;spam&#39; occurs, remove that word from the token list. </span>
+<span style="color: #BA2121; font-style: italic">        remove cruft from html.&quot;&quot;&quot;</span>
+        <span style="color: #008000; font-weight: bold">if</span> (<span style="color: #BA2121">&#39;=&#39;</span> <span style="color: #AA22FF; font-weight: bold">in</span> symbol) <span style="color: #AA22FF; font-weight: bold">or</span> (<span style="color: #BA2121">&#39;&gt;&lt;&#39;</span> <span style="color: #AA22FF; font-weight: bold">in</span> symbol):
+            <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">None</span>
+        spam_in_subject <span style="color: #666666">=</span> re<span style="color: #666666">.</span>compile(<span style="color: #BA2121">&#39;spam&#39;</span>, re<span style="color: #666666">.</span>I)
+        <span style="color: #008000; font-weight: bold">if</span> re<span style="color: #666666">.</span>search(spam_in_subject, symbol):
+            <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">None</span>
+        token <span style="color: #666666">=</span> symbol<span style="color: #666666">.</span>rstrip(<span style="color: #BA2121">&quot;&#39;</span><span style="color: #BB6622; font-weight: bold">\&quot;</span><span style="color: #BA2121">(&lt;&gt;*%$#@!:?,.\/&quot;</span>)<span style="color: #666666">.</span>lstrip(<span style="color: #BA2121">&quot;&#39;</span><span style="color: #BB6622; font-weight: bold">\&quot;</span><span style="color: #BA2121">)\/&lt;&gt;*%$#@!?:,.&quot;</span>)
+        <span style="color: #008000; font-weight: bold">if</span> re<span style="color: #666666">.</span>search(<span style="color: #BA2121">&quot;[a-zA-Z]{3,}&quot;</span>, token) <span style="color: #AA22FF; font-weight: bold">and</span> (<span style="color: #008000">len</span>(token) <span style="color: #666666">&lt;</span> <span style="color: #666666">13</span>):
+            <span style="color: #008000; font-weight: bold">return</span> token
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">None</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">tokenize</span>(<span style="color: #008000">self</span>):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;Override this method to process the data_container</span>
+<span style="color: #BA2121; font-style: italic">        Returns: this must return a list of Token objects.&quot;&quot;&quot;</span>
+        split_tokens <span style="color: #666666">=</span> []
+        <span style="color: #008000; font-weight: bold">for</span> item <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>items:
+            split_string <span style="color: #666666">=</span> item<span style="color: #666666">.</span>split()
+            split_tokens<span style="color: #666666">.</span>extend(split_string)
+        <span style="color: #008000; font-weight: bold">for</span> pre_token <span style="color: #AA22FF; font-weight: bold">in</span> split_tokens:
+            t <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>parse_pre_tokens(pre_token)
+            <span style="color: #008000; font-weight: bold">if</span> t <span style="color: #AA22FF; font-weight: bold">and</span> (t <span style="color: #AA22FF; font-weight: bold">not</span> <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>tokens):
+                <span style="color: #008000">self</span><span style="color: #666666">.</span>tokens<span style="color: #666666">.</span>append(tkn<span style="color: #666666">.</span>Token(t))
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>tokens
+
+                
+
+ 
+</pre></div>
