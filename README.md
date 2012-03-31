@@ -34,9 +34,9 @@ Example training usage for spam filtering:
     spam_bayes.caclulate_probabilities()
 
     # show results above token list
-    print("%.6f positive %.6f negative \n %s \n" % (subject_bayes.sum_positive(),
-                                                        subject_bayes.sum_negative(),
-                                                        [x.token_string for x in subject_bayes.tokens]))
+    print("%.6f positive %.6f negative \n %s \n" % (spam_bayes.sum_positive(),
+                                                        spam_bayes.sum_negative(),
+                                                        [x.token_string for x in spam_bayes.tokens]))
 
 Background:
 Bayes Therom
