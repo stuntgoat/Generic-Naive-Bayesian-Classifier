@@ -1,5 +1,7 @@
-import generic_token as tkn 
+import generic_token as tkn
+
 import re
+
 
 class SpamTokenizer(object):
     """parse email content, given as a list of strings- a list of lines in a file."""
@@ -11,7 +13,7 @@ class SpamTokenizer(object):
 
     def parse_pre_tokens(self, symbol):
         """remove '=', '><', and any word that does not contain letters; or
-        if the word 'spam' occurs, remove that word from the token list. 
+        if the word 'spam' occurs, remove that word from the token list.
         remove cruft from html."""
         if ('=' in symbol) or ('><' in symbol):
             return None
@@ -35,7 +37,3 @@ class SpamTokenizer(object):
             if t and (t not in self.tokens):
                 self.tokens.append(tkn.Token(t))
         return self.tokens
-
-                
-
- 
