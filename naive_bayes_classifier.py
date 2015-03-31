@@ -59,23 +59,23 @@ class NaiveBayesClassifier(object):
                                                              polarity='negative')
 
             numerator = (float(positive_count) / total_positive)
-            denominator = ((float(positive_count) / total_positive) + (float(negative_count)/total_negative))
-            token.positive_value = numerator/denominator
-            numerator = (float(negative_count)/total_negative)
-            denominator = ((float(negative_count)/total_negative) + (float(positive_count)/total_positive))
-            token.negative_value = numerator/denominator
+            denominator = ((float(positive_count) / total_positive) + (float(negative_count) / total_negative))
+            token.positive_value = numerator / denominator
+            numerator = (float(negative_count) / total_negative)
+            denominator = ((float(negative_count) / total_negative) + (float(positive_count) / total_positive))
+            token.negative_value = numerator / denominator
         return True
 
     def sum_positive(self):
         """p(S) = (p1 * p2 ... pn) /
         ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )"""
         numerator = sum([token.positive_value for token in self.tokens])
-        denominator = numerator + sum([1-token.positive_value for token in self.tokens])
-        return float(numerator)/denominator
+        denominator = numerator + sum([1 - token.positive_value for token in self.tokens])
+        return float(numerator) / denominator
 
     def sum_negative(self):
         """p(S) = (p1 * p2 ... pn) /
         ( (p1 * p2 ... * pn) + ( (1 - p1) * (1 - p2) ... * (1 - pn) ) )"""
         numerator = sum([token.negative_value for token in self.tokens])
-        denominator = numerator + sum([1-token.negative_value for token in self.tokens])
-        return float(numerator)/denominator
+        denominator = numerator + sum([1 - token.negative_value for token in self.tokens])
+        return float(numerator) / denominator

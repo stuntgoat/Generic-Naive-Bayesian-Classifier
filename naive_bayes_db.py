@@ -36,11 +36,11 @@ class NaiveBayesDB(object):
         """Increment each counter according to train methods."""
         value = int(value)
         if not value:
-            print 'invalid integer: %s'
+            print 'invalid integer: %s' % value
             return False
 
         if counter not in self.COUNTERS:
-            print 'invalid counter'
+            print 'invalid counter: %s' % counter
             return False
 
         current = self.cursor.execute("SELECT counter from counters WHERE name=?", (counter,))
@@ -59,7 +59,8 @@ class NaiveBayesDB(object):
                 self.cursor.execute("insert into positive_classification VALUES (?, ?)", (token, 1))
             elif polarity == 'negative':
                 self.cursor.execute("insert into negative_classification VALUES (?, ?)", (token, 1))
-        except sl3.IntegrityError:  # token exists in database, so increment token count
+        except sl3.IntegrityError:
+            # token exists in database, so increment token count
             if polarity == 'positive':
                 self.cursor.execute("SELECT count from positive_classification WHERE token=?", (token,))
                 value = self.cursor.fetchone()[0]
